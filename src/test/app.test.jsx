@@ -87,9 +87,9 @@ describe('todoList component', () => {
     const taskElement = screen.getByText(defaultTaskTitle);
 
     // * Q：需要先確認該任務存在? (因為上個test已經做過這件事)
-    // * A：前面確認存在就不重複斷言。會在所有測試之前先確認元素存在。
+    // * A：前面確認存在就不重複斷言。Uli 會在所有測試之前先確認元素存在(像29行)，但這邊再做一次也可以，看心情。
     // matcher -> toBeInTheDocument
-    // 整個 expect 加 matcher 就是個斷言(n)
+    // 整段 expect 加 matcher 就是個斷言(n)
     expect(taskElement).toBeInTheDocument(); // 初始任務應存在
 
     // 模擬雙擊任務標題
@@ -118,7 +118,7 @@ describe('todoList component', () => {
     fireEvent.click(taskElement);
     expect(taskElement.nextElementSibling.textContent).toBe('Completed');
 
-    // * Q：兩個測試內容要拆成兩個 it 寫嗎?
-    // * A：看心情&程式碼複雜度XD 太多斷言會難以除錯
+    // * Q：兩個斷言(測試內容)要拆成兩個 it 寫嗎?
+    // * A：看心情&程式碼複雜度XD 太多斷言會難以除錯跟環境不如預期
   });
 });

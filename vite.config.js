@@ -11,15 +11,12 @@ export default defineConfig({
     coverage: {
       provider: 'v8', // 預設使用，可不加 V8 作為覆蓋率提供者
       reporter: ['text', 'html'], // 指定覆蓋率報告輸出格式
-      exclude: ['src/main.js', '**/node_modules/**'],
-      coverage: {
-        include: ['src/**/*.js'],
-        exclude: ['src/main.js'],
-      },
+      include: ["src/**/*.js", "src/**/*.jsx"], // 需要包含在覆蓋率計算中的檔案
+      exclude: ["src/main.js"], // 需要排除在覆蓋率計算之外的檔案
     },
-    onConsoleLog(log, type) {
-      console.log('log in test: ', log);
-      if (log === 'message from third party library' && type === 'stdout') {
+    onConsoleLog(log, type) { // Vitest 提供的 hook，監聽並處理測試期間的控制台輸出
+      console.log('log in test: ', log); // 監控所有的控制台輸出
+      if (log === 'message from third party library' && type === 'stdout') { // 過濾特定輸出
         return false;
       }
     },
