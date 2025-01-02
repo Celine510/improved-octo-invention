@@ -23,12 +23,14 @@ describe('todoList component', () => {
 
     const taskElement = screen.getByText('study');
     expect(taskElement).toBeInTheDocument();
-    const statusElement = taskElement.nextElementSibling;
+    const deadlineElement = taskElement.nextElementSibling;
+    expect(deadlineElement.textContent).toBe('2025-04-20 11:03');
+    const statusElement = taskElement.nextElementSibling.nextSibling;
     expect(statusElement.textContent).toBe('Completed');
 
     const taskElement2 = screen.getByText('have lunch');
     expect(taskElement2).toBeInTheDocument();
-    const statusElement2 = taskElement2.nextElementSibling;
+    const statusElement2 = taskElement2.nextElementSibling.nextSibling;
     expect(statusElement2.textContent).toBe('Pending');
 
     // * 舊有寫法的問題：都用陣列遍歷，沒有指定項目對應結果 (ps.保留以供回顧)
@@ -75,7 +77,9 @@ describe('todoList component', () => {
     expect(lastElements).toBeInTheDocument();
     // 也可以 expect(lastElements).toBeTruthy();
 
-    expect(lastElements.nextElementSibling.textContent).toBe('Pending');
+    expect(lastElements.nextElementSibling.nextSibling.textContent).toBe(
+      'Pending'
+    );
     // 原寫法，盡量不要在測試內寫 if else 判斷，改用 toBe
     // expect(
     //   lastElements.nextElementSibling.textContent === 'Pending'
@@ -102,7 +106,7 @@ describe('todoList component', () => {
     // .toBe(null)
   });
 
-  it('should toggle task status to Completed when its title or checkbox is clicked', () => {
+  it('should mark task as Completed when checkbox is clicked', () => {
     const defaultTaskTitle = 'study';
 
     const checkboxElement = screen.getAllByRole('checkbox').at(0);
@@ -112,13 +116,47 @@ describe('todoList component', () => {
 
     // 點擊 checkbox 切換狀態
     fireEvent.click(checkboxElement);
-    expect(taskElement.nextElementSibling.textContent).toBe('Pending');
+    expect(taskElement.nextElementSibling.nextSibling.textContent).toBe(
+      'Pending'
+    );
 
     // 點擊 title 切換狀態
     fireEvent.click(taskElement);
-    expect(taskElement.nextElementSibling.textContent).toBe('Completed');
+    expect(taskElement.nextElementSibling.nextSibling.textContent).toBe(
+      'Completed'
+    );
 
     // * Q：兩個斷言(測試內容)要拆成兩個 it 寫嗎?
     // * A：看心情&程式碼複雜度XD 太多斷言會難以除錯跟環境不如預期
+  });
+
+  it('should not display deadline when still has time.', () => {
+    const inputElement = screen.getByRole('textbox');
+    fireEvent.change(inputElement, { target: { value: 'new task' } });
+
+    const deadlineInput = screen.getByLabelText('deadline time');
+    expect(deadlineInput).toBeInTheDocument();
+    fireEvent.change(deadlineInput, { target: { value: '2030-01-01T12:00' } });
+
+    const addButton = screen.getByRole('button', { name: '+' });
+    fireEvent.click(addButton);
+
+    const deadlineElement = screen.queryByText('2030-01-01 12:00');
+    expect(deadlineElement).toHaveClass('hidden');
+  });
+
+  it('should display deadline when times up.', () => {
+    const inputElement = screen.getByRole('textbox');
+    fireEvent.change(inputElement, { target: { value: 'new task' } });
+
+    const deadlineInput = screen.getByLabelText('deadline time');
+    expect(deadlineInput).toBeInTheDocument();
+    fireEvent.change(deadlineInput, { target: { value: '2025-01-01T12:00' } });
+
+    const addButton = screen.getByRole('button', { name: '+' });
+    fireEvent.click(addButton);
+
+    const deadlineElement = screen.getByText('2025-01-01 12:00');
+    expect(deadlineElement).toBeInTheDocument();
   });
 });
